@@ -14,7 +14,7 @@ se hizo con él.
 | 5 | Alta | Los datos ausentes cambiaban la elegibilidad en silencio (`lineas_previas` vacío = 1ª línea; FEVI opcional) | ✅ Corregido | Comprobación contrafactual `datos_criticos_ausentes`. FEVI obligatoria si HER2+. |
 | 6 | Alta | El modo simulado producía "recomendaciones", y la app degradaba en silencio si faltaba el SDK | ✅ Corregido | El modo simulado siempre añade `modo_simulado` (revisión obligatoria) y la UI lo advierte. Con clave pero sin SDK, la app da error. |
 | 7 | Alta | El umbral de confianza de 0,6 no está calibrado | ⚠️ Parcial | Se añade el motivo `opciones_equilibradas` (margen < 0,15) y se documenta que el umbral no está calibrado. La calibración por tumor requiere datos clínicos etiquetados. |
-| 8 | Alta | El texto libre puede influir en Jev pero no activa reglas de seguridad; riesgo de inyección | ⚠️ Parcial | El texto se envía delimitado como datos, no instrucciones. La UI y la documentación avisan de que los datos críticos deben ir en campos estructurados. Pendiente: extracción estructurada de hechos de seguridad. |
+| 8 | Alta | El texto libre puede influir en Jev pero no activa reglas de seguridad; riesgo de inyección | ⚠️ Parcial | El texto se envía delimitado como datos, no instrucciones. La capa 4.5 pregunta `manipulacion_ficha` (noul) cuando hay texto libre: p ≥ 0,5 → revisión obligatoria. En la batería congelada detecta 28/30 fichas manipuladas en 3 pasadas (10/10, 9/10, 9/10) con 0/30 FP en honestas; la de palabras repetidas (M06) es inestable alrededor del umbral (p=0,54, 0,48, 0,49) (pre-registro en `docs/experimentos/`). Pendiente: extracción estructurada de hechos de seguridad y ampliar la batería a más tumores. |
 | 9 | Alta | Las 116 preguntas de las capas 1-2 no las usa ninguna regla, aunque la documentación decía que sí | ✅ Corregido (transparencia) | La documentación y la UI dicen la verdad: son contexto para la capa 3 ("solo contexto"). |
 | 10 | Alta | La métrica de seguridad de las viñetas daba por buena cualquier revisión, incluso por baja confianza | ✅ Corregido | Nueva métrica `acierto_seguridad_robusta`: exige un motivo de seguridad o de datos. |
 | 11 | Alta | La concordancia "exacta" de MSK era en realidad por clase, y la cobertura se excluía | ✅ Corregido | Renombrada a "misma clase terapéutica". Se añaden la cobertura y la concordancia compatible ITT. |
@@ -26,15 +26,20 @@ se hizo con él.
 
 ## Efecto medido (Jev real)
 
-- Viñetas: 404/404; opción preferida 95,6%; seguridad robusta 100%.
-- **El 48% de los casos de tratamiento acertados quedan marcados para revisión**. Los
+- Viñetas: 404/404; opción preferida 96,5%; seguridad robusta 100% (re-evaluadas con la capa 4.5 activa).
+- **El 52% de los casos de tratamiento acertados quedan marcados para revisión** (48% antes de la capa 4.5). Los
   motivos principales son datos opcionales ausentes que podrían cambiar la opción. El
   sistema es ahora más conservador: prefiere escalar a un oncólogo antes que suponer.
 - MSK-CHORD: cobertura 94%, compatible 81% (77% ITT). Los casos de mama HER2+ piden
   la FEVI antes de recomendar anti-HER2.
-- `tests/test_engine.py`: 51 pruebas de regresión: bloqueo duro por FEVI, fallo
-  cerrado, datos fuera de rango, lógica trivalente, modo simulado, y que la opción
-  preferida de todas las viñetas sigue siendo candidata.
+- Capa 4.5 (auditoría Jev→Jev, posterior a esta revisión): en MSK-CHORD pareado
+  el acierto agregado no cambia y la revisión sube de 18,7% a 26,7% (McNemar
+  p=0,00012), marcando 14/42 discordancias reales frente a 11/42 sin auditoría. Alerta de manipulación:
+  28/30 detectadas en 3 pasadas, 0/30 FP en el conjunto congelado.
+- `tests/test_engine.py`: 69 pruebas de regresión: bloqueo duro por FEVI, fallo
+  cerrado, datos fuera de rango, lógica trivalente, modo simulado, auditoría
+  (desacuerdo, manipulación, sin respuesta, desactivada), backend alternativo y
+  que la opción preferida de todas las viñetas sigue siendo candidata. Con `tests/test_eval_stats.py` y `tests/test_llm_backend.py` son 95 en total.
 
 ## Lo que sigue pendiente
 

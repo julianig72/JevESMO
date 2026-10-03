@@ -28,7 +28,7 @@ load_dotenv(ROOT / ".env")
 
 from jevesmo.engine.pipeline import CONFIDENCE_THRESHOLD, run  # noqa: E402
 from jevesmo.engine.spec import Campo, TumorSpec, load_all  # noqa: E402
-from jevesmo.jev_client import JevClient  # noqa: E402
+from jevesmo.jev_client import JevClient, make_client  # noqa: E402
 
 st.set_page_config(page_title="JevESMO — Guías ESMO + Jev", layout="wide")
 UNK = "desconocido"
@@ -49,7 +49,7 @@ def nb(markup: str) -> None:
 
 @st.cache_resource
 def get_client() -> JevClient:
-    return JevClient()
+    return make_client()
 
 
 def specs_by_group() -> dict[str, list[TumorSpec]]:
@@ -195,6 +195,7 @@ def render_results(resultado: dict) -> None:
         f'<span class="nb-tag yellow">{e(resultado.get("grupo"))} · {e(resultado.get("tumor_nombre"))}</span>'
         + "".join(f'<span class="nb-tag lilac">{e(k)} · {e(v)}</span>' for k, v in (resultado.get("derivados") or {}).items() if v)
         + f'<span class="nb-tag">Árbol · {e(resultado["esmo_tree_version"])}</span>'
+        + "".join(f'<span class="nb-tag">Jev · {e(m)}</span>' for m in resultado.get("modelo_jev") or [])
     )
 
     if resultado["requiere_revision_humana"]:
@@ -380,7 +381,8 @@ def render_evaluation(client: JevClient) -> None:
     tum = res["tumores"]
     if tum:
         g = res["global"]
-        modelos = sorted({x["modelo"] for x in tum.values()})
+        # Versiones de Jev que respondieron (resueltas); los runs antiguos solo guardaban el alias.
+        modelos = sorted({m for x in tum.values() for m in (x.get("modelos_resueltos") or [x["modelo"]])})
         fechas = sorted(x["fecha"] for x in tum.values())
         mock = any(x["mock"] for x in tum.values())
         nb(
@@ -401,6 +403,14 @@ def render_evaluation(client: JevClient) -> None:
             nb('<div class="note">Seguridad robusta = el caso se escaló por un motivo de seguridad o de datos, no solo por baja '
                f'confianza del modelo. Casos de tratamiento acertados y sin revisión: {_pct(g.get("tratamiento_sin_revision"))} · '
                f'marcados para revisión: {_pct(g.get("pct_tratamiento_con_revision"))}.</div>')
+        if g.get("errores"):
+            nb(f'<div class="nb-card red"><h3>Errores de API</h3><div class="note">{g["errores"]} casos no '
+               "pudieron evaluarse por errores de la API o de red (no cuentan como aciertos ni fallos). "
+               "Repetir solo esos casos con <code>--retry-errors</code>.</div></div>")
+        if g.get("fallos_pipeline"):
+            nb(f'<div class="nb-card red"><h3>Fallos del pipeline</h3><div class="note">{g["fallos_pipeline"]} casos '
+               "provocaron una excepcion del propio sistema (no de la red): cuentan como fallos, no se excluyen. "
+               "Revisar el campo <code>fallo</code> de cada caso.</div></div>")
         if g.get("n_multiopcion") is not None:
             nb(
                 '<div class="nb-card yellow"><h3>Dificultad real de la decisión</h3>'
@@ -536,6 +546,8 @@ def render_evaluation(client: JevClient) -> None:
 def _os_txt(o: dict | None) -> str:
     if not o or not o.get("n"):
         return "—"
+    if o.get("suprimido"):
+        return f"n={o['n']} (suprimida)"
     med = o.get("mediana_meses")
     return f"{'no alcanzada' if med is None else f'{med:.1f} m'}"
 
@@ -547,7 +559,7 @@ def _render_msk(r: dict | None) -> None:
     casos = r.get("casos") or {}
     nb('<div class="nb-section right">C · Cohorte real MSK-CHORD · otros tumores</div>')
     nb(
-        f'<span class="nb-tag {"red" if r.get("mock") else "green"}">Modelo · {e(r.get("modelo", ""))}</span>'
+        f'<span class="nb-tag {"red" if r.get("mock") else "green"}">Modelo · {e(", ".join(r.get("modelos_resueltos") or [r.get("modelo", "")]))}</span>'
         f'<span class="nb-tag">Ejecución · {e(str(r.get("fecha", ""))[:16].replace("T", " "))} UTC</span>'
         f'<span class="nb-tag yellow">MSK-CHORD · CC BY-NC-ND 4.0 · solo métricas agregadas</span>'
     )

@@ -38,6 +38,10 @@ Capa 3 Jev: eleccion entre las opciones validas + beneficio esperado
    ▼
 Capa 4 Jev: seguridad / contraindicaciones (bloquean opciones)    ← spec.seguridad (+ reglas comunes)
    ▼
+Capa 4.5 Jev: auditoria (2ª lectura; activa por defecto, JEVESMO_AUDITORIA=0 la desactiva)
+   · solo puede ANADIR revisiones: desacuerdo del revisor o posible
+     manipulacion del texto libre — nunca cambia la recomendacion
+   ▼
 Gate de confianza (< 60%, sin opcion segura, o ECOG 3-4 no candidato → revision obligatoria)
    ▼
 Resultado + explicabilidad completa (preguntas, respuestas, probabilidades)
@@ -79,10 +83,16 @@ src/jevesmo/
   engine/conditions.py     # Lenguaje de condiciones (eq, in, gte, missing, any/all/not, jev.*)
   engine/pipeline.py       # Motor generico: run(tumor_id, datos, client)
   tumors/*.json            # 43 arboles ESMO (opciones, preguntas Jev, seguridad, viñetas)
-  jev_client.py            # Cliente Jev: real (typesafe-sdk) o mock si no hay API key
-  evaluation/              # Evaluacion: viñetas + cohortes reales METABRIC y MSK-CHORD
-scripts/                   # validate_specs.py, run_vignettes.py, run_evaluation.py
+  heldout/*.json           # Viñetas held-out (no usadas para iterar; congeladas por commit)
+  adversarial/*.json       # Bateria de fichas manipuladas/honestas (alerta de manipulacion)
+  jev_client.py            # Cliente Jev (typesafe-sdk, mock si no hay key) + make_client()
+  llm_client.py            # Backend LLM alternativo opt-in via system-one-adapter
+  evaluation/              # Evaluacion: viñetas + METABRIC + MSK-CHORD + held-out +
+                           # adversarial + stats (McNemar/Wilson/Brier/ECE) + comparador
+scripts/                   # validate_specs, run_vignettes, run_evaluation, run_adversarial,
+                           # compare_eval_runs
 data/eval/                 # Resultados de evaluacion por tumor
+docs/experimentos/         # Pre-registros: held-out y manipulacion (congelados por commit)
 ```
 
 ## Como conseguir la clave de la API de Jev
@@ -104,6 +114,30 @@ Sin clave configurada, la app funciona igualmente en **modo mock**: genera
 respuestas simuladas deterministas para poder probar todo el flujo, y las
 marca explicitamente en la UI y en la traza (`"simulado": true`) para que
 nunca se confundan con una respuesta real de Jev.
+
+### Backend LLM alternativo (opcional, no validado)
+
+Con `pip install -e ".[llm]"` (`system-one-adapter` + SDK del proveedor) se
+puede evaluar con un LLM generico en vez de Jev — util como baseline
+comparativo o para un
+despliegue que no pueda enviar datos a la API externa. Es **opt-in
+explicito**: nunca se selecciona como fallback silencioso, y todo caso
+evaluado con el lleva el motivo permanente `backend_alternativo` (revision
+humana obligatoria).
+
+```
+JEVESMO_BACKEND=llm
+JEVESMO_LLM_PROVIDER=openai      # openai|anthropic|gemini
+JEVESMO_LLM_MODEL=llama3.2:1b
+JEVESMO_LLM_BASE_URL=http://localhost:11434/v1   # OpenAI-compatible (Ollama, vLLM...)
+JEVESMO_LLM_ANSWER_MODE=probabilities            # probabilities|discrete
+```
+
+Para comparar backend alternativo vs Jev sobre las mismas viñetas:
+`run_vignettes.py` en cada configuracion y `compare_eval_runs.py` (McNemar
+pareado). Aviso del banco: un decisor no-Jev **no** hereda la deteccion de
+manipulacion de Jev — la capa 4.5 corre igualmente, pero su calidad hay que
+medirla con la bateria adversarial propia (`run_adversarial.py`).
 
 ## Instalacion y ejecucion
 
@@ -142,10 +176,14 @@ La pestaña **📊 Evaluacion** muestra (y permite relanzar) tres pruebas:
    de seguridad (datos faltantes, contraindicaciones). Muestra el acierto global,
    por especialidad y por tumor, y la **dificultad real** (casos donde Jev tuvo
    que elegir entre 2 o mas opciones validas).
-2. **METABRIC** (cBioPortal `brca_metabric`, Curtis 2012 / Pereira 2016), solo
+2. **Bateria adversarial** (`src/jevesmo/adversarial/`): fichas cuyo texto libre
+   intenta sesgar la decision (ordenes al evaluador, datos inventados,
+   aprobaciones falsas) mezcladas con notas largas y honestas. Mide la alerta
+   de manipulacion de la capa 4.5.
+3. **METABRIC** (cBioPortal `brca_metabric`, Curtis 2012 / Pereira 2016), solo
    mama: cohorte real. Compara con el tratamiento recibido y calcula el AUC, la
    concordancia por nivel de confianza (no es una calibracion clinica) y el valor pronostico (Kaplan-Meier).
-3. **MSK-CHORD** (cBioPortal `msk_chord_2024`, Jee et al., *Nature* 2024):
+4. **MSK-CHORD** (cBioPortal `msk_chord_2024`, Jee et al., *Nature* 2024):
    cohorte real de Memorial Sloan Kettering (~25.000 pacientes, 2014-2022) con
    linea temporal de tratamientos, ECOG y genomica MSK-IMPACT. Se reconstruye la
    1ª linea de pacientes metastasicos de novo de **CPNM, colorrectal, pancreas y
@@ -158,12 +196,41 @@ La pestaña **📊 Evaluacion** muestra (y permite relanzar) tres pruebas:
 .\.venv\Scripts\python.exe scripts\run_evaluation.py            # todo
 .\.venv\Scripts\python.exe scripts\run_evaluation.py --no-metabric
 .\.venv\Scripts\python.exe scripts\run_evaluation.py --solo-msk    # solo MSK-CHORD
+.\.venv\Scripts\python.exe scripts\run_evaluation.py --retry-errors # repite solo las filas con error de API
+.\.venv\Scripts\python.exe scripts\run_evaluation.py --heldout     # vinetas held-out
+.\.venv\Scripts\python.exe scripts\run_adversarial.py            # bateria de manipulacion
 ```
 
-Ultimos resultados (Jev real, tras la revision adversaria): viñetas **404/404**,
-opcion preferida 95,6%, 130 casos con eleccion real entre 2 o mas opciones: 100%,
+Solo los fallos de transporte o de API (timeouts, conexion, rate limit, 5xx)
+no cuentan como aciertos ni como fallos: se reportan aparte en `errores` y se
+repiten con `--retry-errors`, que conserva las filas sanas del run guardado.
+Cualquier otra excepcion (spec roto, bug del pipeline) **si cuenta como
+fallo** (`fallos_pipeline`). `--retry-errors` aborta si el run guardado no
+coincide con la configuracion actual (auditoria, backend, modelo, specs). Cada
+run guarda un manifiesto: alias y versiones resueltas de Jev, si la capa 4.5
+estaba activa, commit, SDK, host (hash) y hash SHA-256 de cada spec. Las
+curvas de supervivencia con n<5 se suprimen (licencia de MSK-CHORD).
+
+**Viñetas held-out** (`src/jevesmo/heldout/<tumor>.json`): un conjunto nuevo
+que no se usa para iterar los arboles, congelado por commit antes de la
+primera ejecucion. Es la estimacion honesta del acierto (las viñetas del spec
+sirvieron para iterar). Protocolo y criterio de lectura:
+[docs/experimentos/pre-registro-heldout-vinetas.md](docs/experimentos/pre-registro-heldout-vinetas.md).
+
+**Comparar dos runs** (cascada, backend alternativo, dos versiones de un
+spec): McNemar pareado + IC95 de Wilson sobre las filas por caso:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\compare_eval_runs.py data\eval\mama.json data\eval\_heldout_mama.json --metric acierto
+```
+
+Ultimos resultados (Jev real, tras la revision adversaria;
+todas las viñetas re-evaluadas con la capa 4.5 activa, ver `auditoria` en el
+manifiesto de cada fichero): viñetas **404/404** (la auditoria marca ademas
+34 con `desacuerdo_revisor`),
+opcion preferida 96,5%, 130 casos con eleccion real entre 2 o mas opciones: 100%,
 seguridad robusta (escala por un motivo de seguridad/datos, no solo baja confianza)
-100%. **El 48% de los casos de tratamiento acertados se marcan igualmente para
+100%. **El 52% de los casos de tratamiento acertados se marcan igualmente para
 revision** (sobre todo por datos opcionales ausentes que podrian cambiar la opcion):
 es el precio de fallar en modo seguro. METABRIC luminal precoz: AUC 0,92,
 sensibilidad 93%.
@@ -189,9 +256,29 @@ gemcitabina + nab-paclitaxel y MSK FOLFIRINOX (equivalentes en ESMO). Las
 discordancias en CPNM sin driver son sobre todo quimio sola (practica anterior a
 2018) frente a quimio-inmunoterapia.
 
+**Capa 4.5 (auditoria) medida**: con el conjunto adversarial congelado,
+Jev detecta **28/30 fichas manipuladas (3 pasadas: 10/10, 9/10, 9/10) con 0/30 falsos positivos** en honestas; la ficha M06 (palabras repetidas) es inestable, con p=0,54, 0,48 y 0,49 frente al umbral 0,5
+(criterio pre-registrado: >=7/10 y <=1/10). En MSK-CHORD pareado (240 casos
+con/sin auditoria, re-ejecutado con el manifiesto corregido) el acierto
+agregado es identico (183/239 compatibles en ambos; Jev no es determinista:
+en 2 casos de pancreas la primera eleccion cambio entre ejecuciones) y las
+marcas suben de 18,7% a 26,7% (McNemar p=0,00012, 225 pares), capturando
+14/42 discordancias reales con la practica MSK frente a 11/42 sin auditoria.
+Las tablas 2x2 pareadas (solo contadores, sin datos de paciente) estan en
+`data/eval/_msk_chord_pareado.json` (`scripts/export_msk_pareado.py`) para verificar el McNemar. La comparativa Jev vs `llama3.2:1b` local via backend alternativo (con la capa 4.5 activa,
+3 ejecuciones en mama): Jev **22/22** frente a **17, 18 y 16 de 22** (McNemar pareado
+p=0,0625, 0,125 y 0,03125; solo la tercera baja de 0,05 y las tres comparten los mismos 22
+casos, asi que no se agrupan). La medida previa (13/22, p=0,0039) no se reproduce: Llama
+tampoco es determinista y aquella ejecucion no tenia manifiesto. Resultados en
+`data/eval/_llm_llama32-1b_mama_r{1,2,3}.json`.
+
 **Limitaciones**: las viñetas las ha redactado IA a partir de las guias y
 **deben validarse por oncologos**. Los arboles se iteraron con esas mismas
-viñetas, asi que el 100% sobreestima el rendimiento en casos reales. Los arboles
+viñetas, asi que el 100% sobreestima el rendimiento en casos reales (el
+conjunto held-out esta pendiente de un redactor externo). El conjunto
+adversarial lo redacto el mismo agente que implemento la alerta: casos y
+criterio estan congelados por commit, pero la validacion clinica sigue
+pendiente. Los arboles
 simplifican las guias: las situaciones no modeladas terminan en "fuera del arbol"
 con revision obligatoria. METABRIC es practica de 1977-2005 y ECOG se asume 0. En MSK-CHORD **concordar
 con la practica no equivale a acertar**; hay datos imputados (PD-L1 solo
@@ -206,7 +293,13 @@ diseño encontrados, lo corregido y lo que sigue siendo una limitacion.
 
 ## Siguientes pasos
 
-- Validacion clinica de cada spec y viñeta por especialistas de cada area.
+- **Viñetas held-out**: pendiente un redactor distinto del iterador de los
+  arboles (maquinaria, pre-registro y congelado por commit listos).
+- **Validacion clinica** de cada spec y viñeta por especialistas de cada area,
+  con doble anotacion y adjudicacion.
 - Cohortes reales de otros tumores (p.ej. MSK-CHORD en cBioPortal).
-- Persistencia/auditoria de cada decision (paciente, version del arbol,
-  preguntas y respuestas, aprobacion humana).
+- Persistencia/auditoria de cada decision — parcialmente hecho: cada run y
+  cada caso registran alias + version resuelta de Jev, commit, host, SDK y
+  hash SHA-256 del spec; falta persistir la decision clinica completa con la
+  aprobacion humana.
+- Ampliar la bateria adversarial a mas tumores si la señal se mantiene.

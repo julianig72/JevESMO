@@ -1,0 +1,373 @@
+{
+ "n_por_tumor": 60,
+ "seed": 42,
+ "tumores": {
+  "cpnm_metastasico": {
+   "tumor": "cpnm_metastasico",
+   "nombre": "CPNM metastásico",
+   "n": 60,
+   "errores": 0,
+   "evaluables": 60,
+   "fallos_pipeline": 0,
+   "necesita_datos": 0,
+   "sin_opcion": 0,
+   "exacta": 0.7166666666666667,
+   "compatible": 0.7166666666666667,
+   "cobertura": 1.0,
+   "compatible_itt": 0.7166666666666667,
+   "compatible_nota": "sin compatibilidades parciales",
+   "revision_pct": 0.0,
+   "confianza_media": 0.9945,
+   "brier_confianza": 0.2825283333333333,
+   "ece_confianza": 0.2778333333333334,
+   "por_subgrupo": {
+    "Con driver accionable": {
+     "n": 22,
+     "evaluables": 22,
+     "exacta": 0.7272727272727273,
+     "compatible": 0.7272727272727273
+    },
+    "KRAS G12C / HER2 mut (dirigida en 2L)": {
+     "n": 9,
+     "evaluables": 9,
+     "exacta": 0.6666666666666666,
+     "compatible": 0.6666666666666666
+    },
+    "Sin driver": {
+     "n": 29,
+     "evaluables": 29,
+     "exacta": 0.7241379310344828,
+     "compatible": 0.7241379310344828
+    }
+   },
+   "matriz": {
+    "dirigida": {
+     "dirigida": 16,
+     "quimio": 5,
+     "inmunoterapia": 1
+    },
+    "inmunoterapia": {
+     "quimio": 11,
+     "inmunoterapia": 27
+    }
+   },
+   "os_concordante": {
+    "n": 43,
+    "os_12m": 0.6004811547714515,
+    "os_24m": 0.32809094768621155,
+    "mediana_meses": 14.86025769
+   },
+   "os_discordante": {
+    "n": 17,
+    "os_12m": 0.8823529411764706,
+    "os_24m": 0.6302521008403361,
+    "mediana_meses": 33.13968971
+   },
+   "preguntas_frecuentes": [],
+   "driver_dirigida": {
+    "jev_recomienda_dirigida": 1.0,
+    "os_recibio_dirigida": {
+     "n": 16,
+     "os_12m": 0.5,
+     "os_24m": 0.4375,
+     "mediana_meses": 11.73697344
+    },
+    "os_no_recibio_dirigida": {
+     "n": 6,
+     "os_12m": 0.8333333333333334,
+     "os_24m": 0.625,
+     "mediana_meses": 43.72597948
+    }
+   }
+  },
+  "ccr_metastasico": {
+   "tumor": "ccr_metastasico",
+   "nombre": "Cáncer colorrectal metastásico",
+   "n": 60,
+   "errores": 0,
+   "evaluables": 57,
+   "fallos_pipeline": 0,
+   "necesita_datos": 3,
+   "sin_opcion": 0,
+   "exacta": 0.15789473684210525,
+   "compatible": 0.8771929824561403,
+   "cobertura": 0.95,
+   "compatible_itt": 0.8333333333333334,
+   "compatible_nota": "misma quimio doblete sin (o con retraso >90 d del) biologico",
+   "revision_pct": 0.0,
+   "confianza_media": 1.0,
+   "brier_confianza": 0.12280701754385964,
+   "ece_confianza": 0.1228070175438597,
+   "por_subgrupo": {
+    "MSI-H": {
+     "n": 7,
+     "evaluables": 6,
+     "exacta": 0.16666666666666666,
+     "compatible": 0.16666666666666666
+    },
+    "RAS mutado · derecho": {
+     "n": 12,
+     "evaluables": 12,
+     "exacta": 0.25,
+     "compatible": 1.0
+    },
+    "RAS mutado · desconocido": {
+     "n": 1,
+     "evaluables": 0,
+     "exacta": null,
+     "compatible": null
+    },
+    "RAS mutado · izquierdo": {
+     "n": 15,
+     "evaluables": 15,
+     "exacta": 0.13333333333333333,
+     "compatible": 1.0
+    },
+    "RAS wt · derecho": {
+     "n": 5,
+     "evaluables": 5,
+     "exacta": 0.2,
+     "compatible": 1.0
+    },
+    "RAS wt · desconocido": {
+     "n": 1,
+     "evaluables": 0,
+     "exacta": null,
+     "compatible": null
+    },
+    "RAS wt · izquierdo": {
+     "n": 19,
+     "evaluables": 19,
+     "exacta": 0.10526315789473684,
+     "compatible": 0.8947368421052632
+    }
+   },
+   "matriz": {
+    "quimio_bev": {
+     "quimio_sola": 27,
+     "quimio_bev": 6
+    },
+    "quimio_anti_egfr": {
+     "quimio_sola": 14,
+     "quimio_anti_egfr": 2,
+     "quimio_bev": 2
+    },
+    "inmunoterapia": {
+     "quimio_sola": 5,
+     "inmunoterapia": 1
+    }
+   },
+   "os_concordante": {
+    "n": 50,
+    "os_12m": 0.7951011935651271,
+    "os_24m": 0.5810236533471718,
+    "mediana_meses": 28.73421509
+   },
+   "os_discordante": {
+    "n": 7,
+    "os_12m": 0.5714285714285715,
+    "os_24m": 0.4285714285714286,
+    "mediana_meses": 22.38901656
+   },
+   "preguntas_frecuentes": [
+    "¿El primario es izquierdo o derecho?"
+   ]
+  },
+  "pancreas": {
+   "tumor": "pancreas",
+   "nombre": "Adenocarcinoma de páncreas",
+   "n": 60,
+   "errores": 0,
+   "evaluables": 60,
+   "fallos_pipeline": 0,
+   "necesita_datos": 0,
+   "sin_opcion": 0,
+   "exacta": 0.45,
+   "compatible": 0.9666666666666667,
+   "cobertura": 1.0,
+   "compatible_itt": 0.9666666666666667,
+   "compatible_nota": "FOLFIRINOX y gemcitabina-nab-paclitaxel son ambas opciones ESMO en ECOG 0-1",
+   "revision_pct": 0.36666666666666664,
+   "confianza_media": 0.6248333333333334,
+   "brier_confianza": 0.20446499999999998,
+   "ece_confianza": 0.3418333333333333,
+   "por_subgrupo": {
+    "ECOG 0": {
+     "n": 16,
+     "evaluables": 16,
+     "exacta": 0.75,
+     "compatible": 1.0
+    },
+    "ECOG 1": {
+     "n": 41,
+     "evaluables": 41,
+     "exacta": 0.34146341463414637,
+     "compatible": 0.9512195121951219
+    },
+    "ECOG 2": {
+     "n": 3,
+     "evaluables": 3,
+     "exacta": 0.3333333333333333,
+     "compatible": 1.0
+    }
+   },
+   "matriz": {
+    "gem_nab": {
+     "gem_nab": 15,
+     "folfirinox": 28,
+     "otra_quimio": 2,
+     "gemcitabina_sola": 1
+    },
+    "folfirinox": {
+     "folfirinox": 12,
+     "gem_nab": 2
+    }
+   },
+   "os_concordante": {
+    "n": 58,
+    "os_12m": 0.4347061428330302,
+    "os_24m": 0.2825589928414696,
+    "mediana_meses": 9.369852745
+   },
+   "os_discordante": {
+    "n": 2,
+    "os_12m": null,
+    "os_24m": null,
+    "mediana_meses": null,
+    "suprimido": true
+   },
+   "preguntas_frecuentes": []
+  },
+  "mama": {
+   "tumor": "mama",
+   "nombre": "Cáncer de mama",
+   "n": 60,
+   "errores": 0,
+   "evaluables": 49,
+   "fallos_pipeline": 0,
+   "necesita_datos": 11,
+   "sin_opcion": 0,
+   "exacta": 0.5918367346938775,
+   "compatible": 0.673469387755102,
+   "cobertura": 0.8166666666666667,
+   "compatible_itt": 0.55,
+   "compatible_nota": "endocrino sin iCDK4/6 (mismo eje terapeutico)",
+   "revision_pct": 0.40816326530612246,
+   "confianza_media": 0.9944897959183673,
+   "brier_confianza": 0.31648367346938777,
+   "ece_confianza": 0.32102040816326527,
+   "por_subgrupo": {
+    "HER2+": {
+     "n": 3,
+     "evaluables": 0,
+     "exacta": null,
+     "compatible": null
+    },
+    "HR+/HER2+": {
+     "n": 8,
+     "evaluables": 0,
+     "exacta": null,
+     "compatible": null
+    },
+    "HR+/HER2-": {
+     "n": 30,
+     "evaluables": 30,
+     "exacta": 0.6666666666666666,
+     "compatible": 0.8
+    },
+    "TNBC": {
+     "n": 19,
+     "evaluables": 19,
+     "exacta": 0.47368421052631576,
+     "compatible": 0.47368421052631576
+    }
+   },
+   "matriz": {
+    "quimio": {
+     "quimio": 9,
+     "quimio_ici": 1,
+     "endocrino_cdk46": 3,
+     "endocrino_solo": 2,
+     "anti_her2": 2
+    },
+    "endocrino_cdk46": {
+     "endocrino_cdk46": 20,
+     "endocrino_solo": 4,
+     "quimio": 5,
+     "anti_her2": 1
+    },
+    "parp": {
+     "quimio": 2
+    }
+   },
+   "os_concordante": {
+    "n": 33,
+    "os_12m": 0.9090909090909092,
+    "os_24m": 0.7945454545454546,
+    "mediana_meses": 41.45748881
+   },
+   "os_discordante": {
+    "n": 16,
+    "os_12m": 0.625,
+    "os_24m": 0.625,
+    "mediana_meses": 53.98350248
+   },
+   "preguntas_frecuentes": [
+    "¿Cuál es la FEVI (fracción de eyección del ventriculo izquierdo, %)? Es imprescindible antes de indicar terapia anti-HER2."
+   ]
+  }
+ },
+ "global": {
+  "n": 240,
+  "errores": 0,
+  "fallos_pipeline": 0,
+  "evaluables": 226,
+  "exacta": 0.4778761061946903,
+  "compatible": 0.8141592920353983,
+  "cobertura": 0.9416666666666667,
+  "compatible_itt": 0.7666666666666667,
+  "brier_confianza": 0.22888185840707964,
+  "ece_confianza": 0.25367256637168145,
+  "os_concordante": {
+   "n": 184,
+   "os_12m": 0.6594288437937272,
+   "os_24m": 0.4651696462244558,
+   "mediana_meses": 22.55339994
+  },
+  "os_discordante": {
+   "n": 42,
+   "os_12m": 0.7134920634920634,
+   "os_24m": 0.5658730158730159,
+   "mediana_meses": 33.13968971
+  }
+ },
+ "fecha": "2026-10-03T20:10:27+00:00",
+ "modelo": "jev-latest",
+ "backend": "typesafe",
+ "modelos_resueltos": [
+  "jev-1.13.0"
+ ],
+ "mock": false,
+ "commit": "2633c60",
+ "typesafe_sdk": "0.7.2",
+ "auditoria": false,
+ "host": "ba05c6b9",
+ "specs": {
+  "cpnm_metastasico": {
+   "version": "CPNM_METASTASICO-ESMO-2025.1",
+   "sha256": "ba4f6ffe82e38eef"
+  },
+  "ccr_metastasico": {
+   "version": "ccr_metastasico-ESMO-2026.1",
+   "sha256": "3f2cf2d20115cb5a"
+  },
+  "pancreas": {
+   "version": "PANCREAS-ESMO-2023.1",
+   "sha256": "9b21ab976d32b2c2"
+  },
+  "mama": {
+   "version": "BREAST-ESMO-2024.1",
+   "sha256": "b19912886b251392"
+  }
+ }
+}

@@ -6,7 +6,9 @@
    "tumor": "cpnm_metastasico",
    "nombre": "CPNM metastásico",
    "n": 60,
+   "errores": 0,
    "evaluables": 60,
+   "fallos_pipeline": 0,
    "necesita_datos": 0,
    "sin_opcion": 0,
    "exacta": 0.7166666666666667,
@@ -14,8 +16,10 @@
    "cobertura": 1.0,
    "compatible_itt": 0.7166666666666667,
    "compatible_nota": "sin compatibilidades parciales",
-   "revision_pct": 0.0,
-   "confianza_media": 0.9961666666666668,
+   "revision_pct": 0.2,
+   "confianza_media": 0.9941666666666666,
+   "brier_confianza": 0.2825616666666667,
+   "ece_confianza": 0.27749999999999997,
    "por_subgrupo": {
     "Con driver accionable": {
      "n": 22,
@@ -80,16 +84,20 @@
    "tumor": "ccr_metastasico",
    "nombre": "Cáncer colorrectal metastásico",
    "n": 60,
+   "errores": 0,
    "evaluables": 57,
+   "fallos_pipeline": 0,
    "necesita_datos": 3,
    "sin_opcion": 0,
    "exacta": 0.15789473684210525,
    "compatible": 0.8771929824561403,
    "cobertura": 0.95,
    "compatible_itt": 0.8333333333333334,
-   "compatible_nota": "misma quimio doblete sin (o con retraso >90 d del) biológico",
-   "revision_pct": 0.0,
+   "compatible_nota": "misma quimio doblete sin (o con retraso >90 d del) biologico",
+   "revision_pct": 0.08771929824561403,
    "confianza_media": 1.0,
+   "brier_confianza": 0.12280701754385964,
+   "ece_confianza": 0.1228070175438597,
    "por_subgrupo": {
     "MSI-H": {
      "n": 7,
@@ -169,7 +177,9 @@
    "tumor": "pancreas",
    "nombre": "Adenocarcinoma de páncreas",
    "n": 60,
+   "errores": 0,
    "evaluables": 60,
+   "fallos_pipeline": 0,
    "necesita_datos": 0,
    "sin_opcion": 0,
    "exacta": 0.45,
@@ -177,8 +187,10 @@
    "cobertura": 1.0,
    "compatible_itt": 0.9666666666666667,
    "compatible_nota": "FOLFIRINOX y gemcitabina-nab-paclitaxel son ambas opciones ESMO en ECOG 0-1",
-   "revision_pct": 0.45,
-   "confianza_media": 0.6048333333333333,
+   "revision_pct": 0.38333333333333336,
+   "confianza_media": 0.6308333333333334,
+   "brier_confianza": 0.202295,
+   "ece_confianza": 0.3358333333333333,
    "por_subgrupo": {
     "ECOG 0": {
      "n": 16,
@@ -201,14 +213,14 @@
    },
    "matriz": {
     "gem_nab": {
-     "gem_nab": 15,
-     "folfirinox": 28,
+     "gem_nab": 16,
+     "folfirinox": 29,
      "otra_quimio": 2,
      "gemcitabina_sola": 1
     },
     "folfirinox": {
-     "folfirinox": 12,
-     "gem_nab": 2
+     "folfirinox": 11,
+     "gem_nab": 1
     }
    },
    "os_concordante": {
@@ -219,9 +231,10 @@
    },
    "os_discordante": {
     "n": 2,
-    "os_12m": 0.5,
+    "os_12m": null,
     "os_24m": null,
-    "mediana_meses": 0.526026821
+    "mediana_meses": null,
+    "suprimido": true
    },
    "preguntas_frecuentes": []
   },
@@ -229,16 +242,20 @@
    "tumor": "mama",
    "nombre": "Cáncer de mama",
    "n": 60,
+   "errores": 0,
    "evaluables": 49,
+   "fallos_pipeline": 0,
    "necesita_datos": 11,
    "sin_opcion": 0,
    "exacta": 0.5918367346938775,
    "compatible": 0.673469387755102,
    "cobertura": 0.8166666666666667,
    "compatible_itt": 0.55,
-   "compatible_nota": "endocrino sin iCDK4/6 (mismo eje terapéutico)",
+   "compatible_nota": "endocrino sin iCDK4/6 (mismo eje terapeutico)",
    "revision_pct": 0.40816326530612246,
-   "confianza_media": 0.9957142857142857,
+   "confianza_media": 0.9963265306122449,
+   "brier_confianza": 0.31955102040816324,
+   "ece_confianza": 0.3228571428571428,
    "por_subgrupo": {
     "HER2+": {
      "n": 3,
@@ -296,17 +313,21 @@
     "mediana_meses": 53.98350248
    },
    "preguntas_frecuentes": [
-    "¿Cual es la FEVI (fraccion de eyeccion del ventriculo izquierdo, %)? Es imprescindible antes de indicar terapia anti-HER2."
+    "¿Cuál es la FEVI (fracción de eyección del ventriculo izquierdo, %)? Es imprescindible antes de indicar terapia anti-HER2."
    ]
   }
  },
  "global": {
   "n": 240,
+  "errores": 0,
+  "fallos_pipeline": 0,
   "evaluables": 226,
   "exacta": 0.4778761061946903,
   "compatible": 0.8141592920353983,
   "cobertura": 0.9416666666666667,
   "compatible_itt": 0.7666666666666667,
+  "brier_confianza": 0.22897964601769913,
+  "ece_confianza": 0.2519469026548672,
   "os_concordante": {
    "n": 184,
    "os_12m": 0.6594288437937272,
@@ -320,7 +341,33 @@
    "mediana_meses": 33.13968971
   }
  },
- "fecha": "2026-09-27T18:59:56+00:00",
+ "fecha": "2026-10-03T20:09:18+00:00",
  "modelo": "jev-latest",
- "mock": false
+ "backend": "typesafe",
+ "modelos_resueltos": [
+  "jev-1.13.0"
+ ],
+ "mock": false,
+ "commit": "2633c60",
+ "typesafe_sdk": "0.7.2",
+ "auditoria": true,
+ "host": "ba05c6b9",
+ "specs": {
+  "cpnm_metastasico": {
+   "version": "CPNM_METASTASICO-ESMO-2025.1",
+   "sha256": "ba4f6ffe82e38eef"
+  },
+  "ccr_metastasico": {
+   "version": "ccr_metastasico-ESMO-2026.1",
+   "sha256": "3f2cf2d20115cb5a"
+  },
+  "pancreas": {
+   "version": "PANCREAS-ESMO-2023.1",
+   "sha256": "9b21ab976d32b2c2"
+  },
+  "mama": {
+   "version": "BREAST-ESMO-2024.1",
+   "sha256": "b19912886b251392"
+  }
+ }
 }

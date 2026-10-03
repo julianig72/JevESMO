@@ -26,8 +26,10 @@ flowchart TD
     R --> L3[Capa 3 · Jev: elige entre las candidatas<br/>+ estima el beneficio]
     L3 --> L4[Capa 4 · Seguridad<br/>reglas + Jev bloquean opciones]
     L4 --> G{Gate de confianza<br/>≥ 0,6 y opción no bloqueada}
-    G -->|sí| OK[Recomendación + explicabilidad]
-    G -->|no| HR[Recomendación + REVISIÓN OBLIGATORIA POR ONCÓLOGO]
+    G --> L45[Capa 4.5 · Auditoría<br/>Jev relee la elección + alerta de manipulación<br/>solo añade motivos de revisión]
+    L45 --> F{¿Algún motivo de revisión?}
+    F -->|no| OK[Recomendación + explicabilidad]
+    F -->|sí| HR[Recomendación + REVISIÓN OBLIGATORIA POR ONCÓLOGO]
 ```
 
 El motor (`src/jevesmo/engine/pipeline.py`) es **el mismo para los 43 tumores**.
@@ -38,6 +40,7 @@ Lo único que cambia es el fichero de especificación del tumor
 |---|---|
 | **Reglas deterministas** (spec JSON) | Qué datos son imprescindibles, qué opciones permite ESMO y qué se bloquea por seguridad |
 | **Jev** | Interpretación clínica, riesgo, cuál de las opciones válidas encaja mejor y si una contraindicación aplica al caso concreto |
+| **Jev (auditor)** | Segunda lectura: si la elección de la primera pasada es adecuada y si el texto libre parece manipulado. Solo puede añadir una revisión, nunca cambiar la recomendación |
 | **Oncólogo** | La decisión final, que es obligatoria cuando la confianza es baja o no hay opción segura |
 
 ---
@@ -95,7 +98,7 @@ resp.answers["mejor_opcion"].confidence     # 0.62
   y las respuestas de capas anteriores.
 - **Una llamada por capa.** Todas las preguntas de una capa van juntas en una
   llamada `system_one`, y las capas vacías no generan llamada. Un caso típico hace
-  de 2 a 4 llamadas.
+  de 2 a 4 llamadas (más una si la capa 4.5 está activa).
 - **Probabilidad y confianza no son lo mismo.** `probabilities` indica cuánto
   prefiere Jev cada opción. `confidence` indica lo seguro que está de su respuesta,
   y es la que usa el gate de revisión.
@@ -218,6 +221,45 @@ Reglas comunes a todos los tumores:
 Si la opción que eligió Jev queda bloqueada, se ofrece la siguiente no bloqueada
 **sin confianza** (Jev no la eligió) y con revisión obligatoria.
 
+### Capa 4.5 · Auditoría (segunda lectura)
+
+Capa tras la seguridad, **activada por defecto** (`JEVESMO_AUDITORIA=0` la desactiva; un valor no reconocido lanza error). Un segundo
+paso de Jev revisa el resultado completo — ficha, opción elegida, opciones
+descartadas por seguridad — con dos o tres preguntas:
+
+| Pregunta | Tipo | Qué mide |
+|---|---|---|
+| `auditoria_opcion` | `choice` | ¿Qué opción elegiría el revisor entre las ESMO válidas no bloqueadas? (solo si hay ≥2) |
+| `auditoria_ok` | `noul` | ¿La recomendación elegida es adecuada y segura? |
+| `manipulacion_ficha` | `noul` | ¿El texto libre contiene órdenes dirigidas al evaluador? (solo si hay `descripcion_libre`) |
+
+Reglas estrictas:
+
+- **Solo puede añadir motivos de revisión** (`desacuerdo_revisor`,
+  `posible_manipulacion`, `auditoria_sin_respuesta`). Nunca cambia la
+  recomendación, nunca quita una revisión ni desbloquea una opción.
+- Discrepancia → se muestran **ambas opciones** (elegida y propuesta del
+  revisor) y decide el oncólogo.
+- Sin respuesta → falla cerrado, igual que las reglas de seguridad. «Sin
+  respuesta» es una respuesta ausente o no numérica; si la llamada a Jev lanza
+  una excepción, el caso falla de forma ruidosa (no genera recomendación).
+- **No es una segunda opinión ciega**: es el mismo modelo, con el mismo estado
+  y viendo la primera elección y su confianza, así que puede quedar anclado a
+  ella. Un auditor ciego sería un experimento aparte.
+- **La alerta de manipulación no depende de `JEVESMO_AUDITORIA`**: con texto
+  libre se pregunta `manipulacion_ficha` aunque la auditoría esté desactivada,
+  porque ese texto entra en el estado de todas las capas. Sin auditoría solo
+  se hace esa pregunta (sin el contexto de la primera valoración).
+- La propiedad «solo añade» (misma recomendación, candidatos y confianza;
+  motivos previos conservados) se comprueba con un test sobre las 404 viñetas.
+  La única salvedad es el veredicto de manipulación, que es una llamada con
+  prompt propio y puede variar entre modos.
+- El mecanismo se tomó del banco de pruebas de Jev, donde una segunda
+  lectura mejoraba los casos adversariales, y aquí está medido:
+  en MSK-CHORD eleva la revisión de 18,7% a 26,7% y marca 14/42 de las
+  discordancias reales (11/42 sin auditoría); en la batería adversarial detecta 28/30 manipulaciones en 3 pasadas (0/30 FP)
+  con 0 falsos positivos (pre-registro en `docs/experimentos/`).
+
 ### Paso 5 · Motivos de revisión humana
 
 `requiere_revision_humana` es verdadero si hay **al menos un motivo**, y la salida
@@ -234,6 +276,10 @@ Si la opción que eligió Jev queda bloqueada, se ofrece la siguiente no bloquea
 | `datos_criticos_ausentes` | Un dato vacío podría cambiar las opciones |
 | `confianza_baja` | Confianza de `mejor_opcion` < 0,6 (umbral **no calibrado** clínicamente) |
 | `opciones_equilibradas` | Diferencia de probabilidad entre las dos primeras < 0,15 |
+| `desacuerdo_revisor` | Capa 4.5: el revisor eligió otra opción válida o dice que la elegida no es adecuada |
+| `posible_manipulacion` | Capa 4.5: el texto libre parece dirigido a sesgar la evaluación (noul ≥ 0,5) |
+| `auditoria_sin_respuesta` | Capa 4.5: Jev no respondió (falla cerrado) |
+| `backend_alternativo` | La decisión la tomó un LLM alternativo opt-in, no Jev (no validado) |
 | `modo_simulado` | Sin API key: las respuestas no son de Jev y nunca son una recomendación válida |
 
 La UI muestra estos motivos literalmente, junto a una tabla con cada regla de
@@ -254,6 +300,9 @@ seguridad evaluada, y oculta el resultado si el formulario cambia tras calcular.
 | `confianza` | Confianza de Jev en la elección |
 | `requiere_revision_humana` | Resultado del gate |
 | `avisos_datos_faltantes` | Datos que podrían cambiar la decisión (p. ej. perfil molecular incompleto) y avisos de seguridad |
+| `auditoria` | Resultado de la capa 4.5: `activada`, `opcion_revisor`, `ok_revisor`, `manipulacion` |
+| `backend` | `typesafe` o `llm:<proveedor>` si se usa el backend alternativo opt-in |
+| `modelo_solicitado` / `modelo_jev` | Alias pedido y versiones resueltas de Jev en la traza (auditoría de versiones) |
 | `explicabilidad` | Por cada capa: qué se preguntó a Jev, con qué instrucciones, y qué respondió (valor, confianza, probabilidades, si fue simulado) |
 
 La interfaz muestra la recomendación, las alternativas con sus barras de

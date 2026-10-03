@@ -3,21 +3,39 @@
  "nombre": "Cáncer de mama",
  "grupo": "Mama",
  "version": "BREAST-ESMO-2024.1",
- "fecha": "2026-09-27T18:58:54+00:00",
+ "fecha": "2026-10-03T20:15:12+00:00",
  "modelo": "jev-latest",
+ "backend": "typesafe",
+ "modelos_resueltos": [
+  "jev-1.13.0"
+ ],
  "mock": false,
+ "commit": "7af6eff",
+ "typesafe_sdk": "0.7.2",
+ "auditoria": true,
+ "host": "ba05c6b9",
+ "specs": {
+  "mama": {
+   "version": "BREAST-ESMO-2024.1",
+   "sha256": "b19912886b251392"
+  }
+ },
  "umbral_confianza": 0.6,
  "n": 22,
+ "errores": 0,
+ "fallos_pipeline": 0,
  "aciertos": 22,
  "acierto_global": 1.0,
  "acierto_tratamiento": 1.0,
  "acierto_preferida": 1.0,
  "acierto_seguridad": 1.0,
  "acierto_seguridad_robusta": 1.0,
- "tratamiento_sin_revision": 0.631578947368421,
- "pct_tratamiento_con_revision": 0.3684210526315789,
- "confianza_aciertos": 0.9768421052631578,
+ "tratamiento_sin_revision": 0.5789473684210527,
+ "pct_tratamiento_con_revision": 0.42105263157894735,
+ "confianza_aciertos": 0.9715789473684211,
  "confianza_fallos": null,
+ "brier_confianza": 0.0031684210526315786,
+ "ece_confianza": 0.02842105263157897,
  "n_multiopcion": 12,
  "acierto_multiopcion": 1.0,
  "candidatos_medios": 1.6842105263157894,
@@ -40,7 +58,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V02",
@@ -60,7 +83,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V03",
@@ -73,14 +101,19 @@
    ],
    "obtenido": "endocrino_adyuvante",
    "obtenido_label": "Terapia endocrina adyuvante sola (tamoxifeno/IA) +- CDK4/6i",
-   "confianza": 0.95,
+   "confianza": 0.96,
    "revision": false,
    "motivos_revision": [],
    "acierto": true,
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V04",
@@ -102,7 +135,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 1,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V05",
@@ -116,14 +154,19 @@
    ],
    "obtenido": "pi3k_inhibidor_2L",
    "obtenido_label": "Inhibidor PI3K/AKT (alpelisib/capivasertib) + fulvestrant",
-   "confianza": 0.92,
+   "confianza": 0.88,
    "revision": false,
    "motivos_revision": [],
    "acierto": true,
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 3,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V06",
@@ -137,13 +180,20 @@
    "obtenido": "fulvestrant_2L",
    "obtenido_label": "Fulvestrant/SERD +- inhibidor vía PI3K/AKT/mTOR (2a línea)",
    "confianza": 0.97,
-   "revision": false,
-   "motivos_revision": [],
+   "revision": true,
+   "motivos_revision": [
+    "desacuerdo_revisor"
+   ],
    "acierto": true,
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V07",
@@ -163,7 +213,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V08",
@@ -185,7 +240,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 1,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V09",
@@ -205,7 +265,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 1,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V10",
@@ -227,7 +292,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 1,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V11",
@@ -240,14 +310,19 @@
    ],
    "obtenido": "tdxd_2L",
    "obtenido_label": "Trastuzumab deruxtecan (T-DXd) (2a línea)",
-   "confianza": 0.86,
+   "confianza": 0.81,
    "revision": false,
    "motivos_revision": [],
    "acierto": true,
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V12",
@@ -267,7 +342,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V13",
@@ -289,7 +369,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 1,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V14",
@@ -309,7 +394,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 1,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V15",
@@ -323,14 +413,19 @@
    ],
    "obtenido": "olaparib_adyuvante",
    "obtenido_label": "Olaparib adyuvante (BRCA mutado, alto riesgo)",
-   "confianza": 0.96,
+   "confianza": 0.94,
    "revision": false,
    "motivos_revision": [],
    "acierto": true,
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V16",
@@ -352,7 +447,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V17",
@@ -374,7 +474,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 1,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V18",
@@ -387,14 +492,19 @@
    ],
    "obtenido": "sacituzumab_govitecan",
    "obtenido_label": "Sacituzumab govitecan (2a línea o posterior)",
-   "confianza": 0.96,
+   "confianza": 0.97,
    "revision": false,
    "motivos_revision": [],
    "acierto": true,
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V19",
@@ -408,7 +518,7 @@
    ],
    "obtenido": "parp_metastasico",
    "obtenido_label": "Inhibidor PARP (olaparib/talazoparib)",
-   "confianza": 0.96,
+   "confianza": 0.95,
    "revision": true,
    "motivos_revision": [
     "datos_criticos_ausentes"
@@ -417,7 +527,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 2,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V20",
@@ -441,7 +556,12 @@
    "acierto_preferida": true,
    "preguntas": [],
    "n_candidatos": 1,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": [
+    "jev-1.13.0"
+   ],
+   "auditoria": true
   },
   {
    "id": "MAMA-V21",
@@ -458,10 +578,13 @@
    "acierto": true,
    "acierto_preferida": true,
    "preguntas": [
-    "¿Cual es el estado de HER2 (positivo/negativo)?"
+    "¿Cuál es el estado de HER2 (positivo/negativo)?"
    ],
    "n_candidatos": 0,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": null,
+   "auditoria": null
   },
   {
    "id": "MAMA-V22",
@@ -478,10 +601,13 @@
    "acierto": true,
    "acierto_preferida": true,
    "preguntas": [
-    "¿Cual es el estadio del tumor (I, II, III o IV/metastasico)?"
+    "¿Cuál es el estadio del tumor (I, II, III o IV/metastasico)?"
    ],
    "n_candidatos": 0,
-   "error": null
+   "error": null,
+   "fallo": null,
+   "modelo_jev": null,
+   "auditoria": null
   }
  ]
 }
